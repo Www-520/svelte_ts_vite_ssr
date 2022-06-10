@@ -17,8 +17,8 @@ type Types = {
 type TypesKey = keyof Types;
 
 const DEBUG = true;
-const PORT = 8000;
-const DIRECTORY = './dist/csr';
+const PORT = 8001;
+const DIRECTORY = './dist/ssr/client';
 const DEFAULT_FILE_NAME = 'index.html';
 const TYPES: Types = {
     html: 'text/html',
@@ -65,7 +65,7 @@ const server = http.createServer((req, res) => {
         res.end(data);
     } catch {
         // 非静态文件, 进行服务端渲染
-        
+
     }
 });
 
