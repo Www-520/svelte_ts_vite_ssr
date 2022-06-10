@@ -26,6 +26,7 @@
 ## 使用vite作为打包工具
  - 安装vite -> pnpm add -D vite
  - 安装vite服务端渲染插件 -> pnpm add -D vite-plugin-ssr
+ - (可选)安装vite模板生成插件 -> pnpm add -D vite-plugin-html
 
 ## 使用typescript作为主要开发语言
  - 安装typescript(已包含tsc编译器) -> pnpm add -D typescript

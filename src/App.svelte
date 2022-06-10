@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
     const x = 'HelloWorld';
 </script>
 
