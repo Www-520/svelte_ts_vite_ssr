@@ -31,6 +31,7 @@
 ## 使用typescript作为主要开发语言
  - 安装typescript(已包含tsc编译器) -> pnpm add -D typescript
  - 初始化typescript配置文件tsconfig.json -> npx tsc --init
+ - 支持Svelte + typescript  -> pnpm add -D @tsconfig/svelte 同时配置"extends": "@tsconfig/svelte/tsconfig.json" 重启编辑器（vscode）使其安装识别需要安装插件, 避免无法识别svelte文件而报错
 
 ## 使用svelte作为主要开发框架
  - 安装svelte -> pnpm add svelte
@@ -42,3 +43,7 @@
 ## faq
  - 无法使用import.meta 如果你希望使用ts来写vite配置文件, 那么你需要放弃使用import.meta 因为编译器并不支持. node环境下无法运行 而且会发生冲突——假设设置module为esnext那么允许使用import.meta但不能使用import导入 假设设置module为commonjs那么就无法使用import.meta 这两者之前我选择了后者
  - vite 模板文件, 你可以根据官网推荐的方式直接在项目根目录创建一个index.html文件, 但在使用typescript时, 脚本导入script标签的文件必须是主文件.ts而不是主文件.js 主文件.js将报错——无法找到对应的文件 对于这个别扭的设定, 推荐使用vite-plugin-html插件来处理 https://github.com/vbenjs/vite-plugin-html
+ - node版本问题 不要在项目本地安装node 如果在本地安装node 如果与全局安装的node版本不对 则会报错 卸载本地安装的node即可
+
+## 参考
+ - https://github.com/jiangfengming/svelte-vite-ssr

@@ -1,11 +1,7 @@
-import { InlineConfig, build } from 'vite';
+import type { InlineConfig } from 'vite';
+import { build } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import ssr from 'vite-plugin-ssr/plugin';
-
-interface Configs {
-    readonly csr: InlineConfig[]
-    readonly ssr: InlineConfig[]
-}
+// import ssr from 'vite-plugin-ssr/plugin';
 
 interface Env {
     TARGET: 'test' | 'prod' | undefined
@@ -26,50 +22,21 @@ console.log(`当前传入的环境变量: ${JSON.stringify(env, null, 4)}`);
 console.log(`输出目标 ${TARGET}`);
 console.log(`构建目标 ${RENDER}`);
 
-const configs: Configs = {
-    csr: [
-        {
-            cacheDir: 'node_modules/.vite/csr',
-            build: {
-                target: 'es2015',
-                outDir: 'dist/csr',
-                emptyOutDir: true,
-            },
-            plugins: [
-                svelte(),
-            ],
-        },
-    ],
-    ssr: [
-        {
-            cacheDir: 'node_modules/.vite/ssr/client',
-            build: {
-                target: 'es2015',
-                outDir: 'dist/ssr/client',
-                emptyOutDir: true,
-            },
-            plugins: [
-                svelte(),
-            ],
-        },
-        {
-            cacheDir: 'node_modules/.vite/ssr/server',
-            build: {
-                target: 'es2015',
-                outDir: 'dist/ssr',
-                emptyOutDir: true,
-                ssr: 'src/entry.ssr.server.ts',
-            },
-            plugins: [
-                svelte({
-                    compilerOptions: {
-                        hydratable: true,
-                    },
-                }),
-                ssr(),
-            ],
-        },
-    ],
-};
+const configs: InlineConfig[] = [];
 
-configs[RENDER].forEach(config => build(config));
+const cacheDir = `node_modules/.vite/${RENDER}`;
+const outDir = `dist/${RENDER}`;
+configs.push({
+    mode: RENDER,
+    cacheDir,
+    build: {
+        target: 'es2015',
+        outDir,
+        emptyOutDir: true,
+    },
+    plugins: [
+        svelte(),
+    ],
+});
+
+configs.forEach(config => build(config));
