@@ -29,26 +29,21 @@ const TYPES: Types = {
     json: 'application/json',
     xml: 'application/xml',
 };
-const CSR_DIRECTORY = './dist/csr';
-const SSR_DIRECTORY = './dist/ssr/client';
 
-createServer(8000, CSR_DIRECTORY, (req, res) => {
-    const root = path.normalize(path.resolve(CSR_DIRECTORY));
-    const data = fs.readFileSync(path.join(root, DEFAULT_FILE_NAME));
+const csrRoot = path.normalize(path.resolve('./dist/csr'));
+const ssrRoot = path.normalize(path.resolve('./dist/ssr'));
+
+createServer(8000, csrRoot, (req, res) => {
+    const data = fs.readFileSync(path.join(csrRoot, DEFAULT_FILE_NAME));
     res.writeHead(200, { 'Content-Type': TYPES.html });
     res.end(data);
 });
 
-createServer(8001, SSR_DIRECTORY, (req, res) => {
+createServer(8001, ssrRoot, (req, res) => {
 
 });
 
-function createServer(port: number, directory: string, listener: http.RequestListener) {
-    const PORT = port;
-    const DIRECTORY = directory;
-
-    const root = path.normalize(path.resolve(DIRECTORY));
-
+function createServer(port: number, root: string, listener: http.RequestListener) {
     const server = http.createServer((req, res) => {
         const { method = 'get', url = '/' } = req;
 
@@ -83,7 +78,7 @@ function createServer(port: number, directory: string, listener: http.RequestLis
         }
     });
 
-    server.listen(PORT, () => log(`Server is listening on port ${PORT}`));
+    server.listen(port, () => log(`Server is listening on port ${port}`));
 }
 
 function isType(str: string): str is TypesKey {
@@ -91,7 +86,7 @@ function isType(str: string): str is TypesKey {
 }
 
 function send404(res: http.ServerResponse) {
-    res.writeHead(404, { 'Content-Type': 'text/html' });
+    res.writeHead(404, { 'Content-Type': TYPES.html });
     res.end('404: File not found');
 }
 
