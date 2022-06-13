@@ -57,3 +57,10 @@
 
 ## 参考
  - https://github.com/jiangfengming/svelte-vite-ssr
+
+## todo
+
+- 开发环境实现
+- 路由
+- css预处理
+- js版实现
