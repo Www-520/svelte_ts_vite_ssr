@@ -1,5 +1,4 @@
-import type { InlineConfig } from 'vite';
-import { build } from 'vite';
+import { type InlineConfig, build } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 interface Env {
@@ -33,10 +32,13 @@ configs.push({
         target: 'es2015',
         outDir,
         emptyOutDir: true,
-        ssrManifest: IS_SSR,
     },
     plugins: [
-        svelte(),
+        svelte({
+            compilerOptions: {
+                hydratable: IS_SSR,
+            }, 
+        }),
     ],
 });
 

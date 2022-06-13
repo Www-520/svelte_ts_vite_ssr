@@ -30,7 +30,6 @@
 ## 使用vite作为打包工具
 
 - 安装vite -> pnpm add -D vite
-- 安装vite服务端渲染插件 -> pnpm add -D vite-plugin-ssr
 - (可选)安装vite模板生成插件 -> pnpm add -D vite-plugin-html
 
 ## 使用typescript作为主要开发语言
@@ -46,12 +45,14 @@
 
 ## 配置vite
 
-- 参考vite.build.ts中的代码
+- 客户端渲染 -> 参考vite.build.ts中的代码 客户端渲染的配置很简单, 首先明确的是同构渲染的客户端渲染只是在原来普通客户端渲染的基础上增添了内容而已, 客户端渲染的入口就是根目录的index.html 其余配置也并无二至, 参考vite官网很容易就能配起来, 但同构渲染的客户端渲染需要在入口文件根组件hydratable属性和打包插件svelte.compilerOptions.hydratable属性同时标识为true
+- 服务端渲染 -> 首先你需要了解框架的服务端渲染是如何实现的, 然后知道vite的服务端渲染是如何操作的. svelte的服务端渲染是如果使用的是javascript是不需要编译服务端的代码的, 但由于使用了typescript甚至更多的一些预处理内容, 那么就需要编译, vite编译出服务端渲染代码的关键在于vite.createServer其等同于vite.build 一个负责编译出服务端渲染的代码, 一个负责编译出客户端渲染的代码. (await vite.createServer()).ssrLoadModule用于编译服务端代码
+- 总结即使用build来编译出客户端渲染的代码 使用vite.createServer来创建服务端渲染服务后用其ssrLoadModule来加载服务端渲染的代码
 
 ## faq
 
-- 无法使用import.meta 如果你希望使用ts来写vite配置文件, 那么你需要放弃使用import.meta 因为编译器并不支持. node环境下无法运行 而且会发生冲突——假设设置module为esnext那么允许使用import.meta但不能使用import导入 假设设置module为commonjs那么就无法使用import.meta 这两者之前我选择了后者
-- vite 模板文件, 你可以根据官网推荐的方式直接在项目根目录创建一个index.html文件, 但在使用typescript时, 脚本导入script标签的文件必须是主文件.ts而不是主文件.js 主文件.js将报错——无法找到对应的文件 对于这个别扭的设定, 推荐使用vite-plugin-html插件来处理 <https://github.com/vbenjs/vite-plugin-html>
+- 无法使用import.meta 如果你希望使用ts来写vite配置文件, 那么你需要放弃使用import.meta 因为编译器并不支持. node环境下无法运行 而且会发生冲突——假设设置module为esnext那么允许使用import.meta但不能使用import导入 假设设置module为commonjs那么就无法使用import.meta 由于vite配置是使用ts-node去编译执行的, 那么可以通过单独配置ts-node的module为commonjs解决这个问题 源代码内部则使用module为exnext 避免冲突的同时保证两边都能正常运行
+- vite 模板文件, 你可以根据官网推荐的方式直接在项目根目录创建一个index.html文件, 但在使用typescript时, 脚本导入script标签的文件必须是主文件.ts而不是主文件.js 主文件.js将报错——无法找到对应的文件 对于这个别扭的设定, 可以使用vite-plugin-html插件来处理 <https://github.com/vbenjs/vite-plugin-html>
 - node版本问题 不要在项目本地安装node 如果在本地安装node 如果与全局安装的node版本不对 则会报错 卸载本地安装的node即可
 
 ## 参考

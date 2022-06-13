@@ -1,5 +1,11 @@
 <script lang="ts">
-    const x = 'HelloWorld';
+    let x = 'HelloWorld';
+
+    const fn = () => {
+        x = 'WorldHello';
+    };
 </script>
 
-<div>{x}</div>
+<div on:click={fn}>
+    {x}
+</div>

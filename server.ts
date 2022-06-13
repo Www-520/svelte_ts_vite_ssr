@@ -1,6 +1,8 @@
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
+import { type ViteDevServer, createServer as createViteServer } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 type Types = {
     readonly html: 'text/html'
@@ -32,19 +34,19 @@ const TYPES: Types = {
 
 const csrRoot = path.normalize(path.resolve('./dist/csr'));
 const ssrRoot = path.normalize(path.resolve('./dist/ssr'));
+createServer(8000, csrRoot);
+createServer(8001, ssrRoot, true)
 
-createServer(8000, csrRoot, (req, res) => {
-    const data = fs.readFileSync(path.join(csrRoot, DEFAULT_FILE_NAME));
-    res.writeHead(200, { 'Content-Type': TYPES.html });
-    res.end(data);
-});
+async function createServer(port: number, root: string, ssr: boolean = false) {
+    let vite: ViteDevServer | undefined;
+    if (ssr) {
+        vite = await createViteServer({
+            server: { middlewareMode: 'ssr' },
+            plugins: [svelte()],
+        });
+    }
 
-createServer(8001, ssrRoot, (req, res) => {
-
-});
-
-function createServer(port: number, root: string, listener: http.RequestListener) {
-    const server = http.createServer((req, res) => {
+    const server = http.createServer(async (req, res) => {
         const { method = 'get', url = '/' } = req;
 
         log(`${method} ${url}`);
@@ -62,6 +64,7 @@ function createServer(port: number, root: string, listener: http.RequestListener
         const fileName = url.endsWith(extension) ? url : path.join(url, DEFAULT_FILE_NAME);
 
         // 处理文件路径 -> 以提供的ROOT路径为根路径查找, 不得再往上查找
+        const defaultFilePath = path.join(root, DEFAULT_FILE_NAME);
         const filePath = path.join(root, fileName);
         const isPathUnderRoot = path.normalize(path.resolve(filePath)).startsWith(root);
         if (!isPathUnderRoot) {
@@ -69,12 +72,30 @@ function createServer(port: number, root: string, listener: http.RequestListener
             return;
         }
 
+        if (ssr) {
+            try {
+                // 服务端渲染屏蔽对默认文件的访问
+                if (filePath === defaultFilePath) {
+                    throw 'There is no permission to access /index.html file';
+                }
+                const data = fs.readFileSync(filePath);
+                res.writeHead(200, { 'Content-Type': type });
+                res.end(data);
+            } catch {
+                const data = fs.readFileSync(defaultFilePath).toString('utf-8');
+                const render = await vite!.ssrLoadModule('/src/entry.ssr.ts');
+                res.writeHead(200, { 'Content-Type': TYPES.html });
+                res.end(data.replace('<!--ssr-outlet-->', render.default()));
+            }
+            return;
+        }
         try {
             const data = fs.readFileSync(filePath);
             res.writeHead(200, { 'Content-Type': type });
             res.end(data);
         } catch {
-            listener(req, res);
+            res.writeHead(200, { 'Content-Type': TYPES.html });
+            res.end(fs.readFileSync(defaultFilePath));
         }
     });
 
