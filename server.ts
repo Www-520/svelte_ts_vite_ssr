@@ -1,8 +1,6 @@
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
-import { type ViteDevServer, createServer as createViteServer } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 type Types = {
     readonly html: 'text/html'
@@ -37,16 +35,8 @@ const ssrRoot = path.normalize(path.resolve('./dist/ssr'));
 createServer(8000, csrRoot);
 createServer(8001, ssrRoot, true)
 
-async function createServer(port: number, root: string, ssr: boolean = false) {
-    let vite: ViteDevServer | undefined;
-    if (ssr) {
-        vite = await createViteServer({
-            server: { middlewareMode: 'ssr' },
-            plugins: [svelte()],
-        });
-    }
-
-    const server = http.createServer(async (req, res) => {
+function createServer(port: number, root: string, ssr: boolean = false) {
+    const server = http.createServer((req, res) => {
         const { method = 'get', url = '/' } = req;
 
         log(`${method} ${url}`);
@@ -83,7 +73,7 @@ async function createServer(port: number, root: string, ssr: boolean = false) {
                 res.end(data);
             } catch {
                 const data = fs.readFileSync(defaultFilePath).toString('utf-8');
-                const render = await vite!.ssrLoadModule('/src/entry.ssr.ts');
+                const render = require('./dist/ssr/entry.ssr.js');
                 res.writeHead(200, { 'Content-Type': TYPES.html });
                 res.end(data.replace('<!--ssr-outlet-->', render.default()));
             }

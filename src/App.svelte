@@ -1,5 +1,5 @@
 <script lang="ts">
-    const name = 'Svelte';
+    const name: string = 'Svelte';
     const link = 'https://svelte.dev/tutorial';
 </script>
 

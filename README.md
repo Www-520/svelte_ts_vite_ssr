@@ -42,12 +42,14 @@
 
 - 安装svelte -> pnpm add svelte
 - 安装svelte的vite编译插件 -> pnpm add -D @sveltejs/vite-plugin-svelte
+- 使svelte支持typescript语法 纯属个人观念, 使svelte支持typescript语法并不是必须的 个人觉得svelte文件内容应该保持简单 应该通过类型推断即可得出变量类型 而不需要显示声明 如果在意那一点编译速度的话建议就是不要加 只通过编辑器提示去处理语法问题 如果不在意则可以加并且通过esbuild去处理, 避免编译速度收到太大的影响, svelte的预处理官方推荐是使用svelte-preprocess<https://github.com/sveltejs/svelte-preprocess/blob/main/docs/preprocessing.md#typescript>链接介绍的案例是rollup处理, 所以需要额外安装esbuild 而vite内置了esbuild所以无需额外安装 使用vite.transformWithEsbuild即可
 
 ## 配置vite
 
 - 客户端渲染 -> 参考vite.build.ts中的代码 客户端渲染的配置很简单, 首先明确的是同构渲染的客户端渲染只是在原来普通客户端渲染的基础上增添了内容而已, 客户端渲染的入口就是根目录的index.html 其余配置也并无二至, 参考vite官网很容易就能配起来, 但同构渲染的客户端渲染需要在入口文件根组件hydratable属性和打包插件svelte.compilerOptions.hydratable属性同时标识为true
 - 服务端渲染 -> 首先你需要了解框架的服务端渲染是如何实现的, 然后知道vite的服务端渲染是如何操作的. svelte的服务端渲染是如果使用的是javascript是不需要编译服务端的代码的, 但由于使用了typescript甚至更多的一些预处理内容, 那么就需要编译, vite编译出服务端渲染代码的关键在于vite.createServer其等同于vite.build 一个负责编译出服务端渲染的代码, 一个负责编译出客户端渲染的代码. (await vite.createServer()).ssrLoadModule用于编译服务端代码
 - 总结即使用build来编译出客户端渲染的代码 使用vite.createServer来创建服务端渲染服务后用其ssrLoadModule来加载服务端渲染的代码
+- 纠正错误: vite.createServer是用来搭建开发环境的, 不是用来实现服务端渲染的, 服务端渲染依旧需要独立打包一次, 服务端渲染的关键配置是build.ssr指向服务端渲染的入口文件 参考命令: "build:server": "vite build --outDir dist/server --ssr src/entry-server.js " 和 https://cn.vitejs.dev/config/#build-ssr --ssr 实际就是配置build.ssr属性为src/entry-server.js
 
 ## faq
 
@@ -60,7 +62,7 @@
 
 ## todo
 
-- 开发环境实现
+- 开发环境实现 ✔
 - 路由
 - css预处理
 - js版实现
