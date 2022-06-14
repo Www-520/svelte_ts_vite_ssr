@@ -66,3 +66,27 @@
 - 路由
 - css预处理
 - js版实现
+
+## 完整的配置vite+svelte+typescript流程
+1. 安装svelte, typescript, ts-node, vite, @types/node, @sveltejs/vite-plugin-svelte
+2. 配置vite打包配置 ->
+    1. 实现客户端渲染的生产环境
+        依照vite官网进行通用的配置<https://cn.vitejs.dev/config/>
+        处理svelte需要使用插件@sveltejs/vite-plugin-svelte
+        vite本身原生支持处理ts文件, 但@sveltejs/vite-plugin-svelte并不能原生处理ts语法 也就是说单纯的引入@sveltejs/vite-plugin-svelte 是无法在svelte文件中使用ts语法
+        ts属于需要预处理的操作(一切不为js的内容, 皆是需要预处理的内容), svelte预处理需要使用插件svelte-preprocess进行配置<https://github.com/sveltejs/svelte-preprocess/blob/main/docs/preprocessing.md#typescript>链接文中所使用的是rollup进行打包, 因此其引入了esbuild, 而vite底层实现就是esbuild不需要另外再引入esbuild, 使用vite.transformWithEsbuild处理即可. 对于使用非esbuild去处理的方式, 自行研究, esbuild编译速度很快没有不用的理由, esbuild原生能处理ts文件, 这也是为什么vite能够原生处理ts文件的原因.
+        进行以上配置即客户端渲染的生产环境最基本的配置
+    2. 实现客户端渲染的开发环境
+        vite开发环境需要借助vite.createServer来实现, 该函数首参即vite配置信息 参考vite官网其语法去使用即可. 需要注意的是热更新需要配置server.hmr为true 而server配置即开发服务器配置, 如有更多的需求参考vite.官网server配置即可
+    3. 配置客户端渲染静态服务器
+        略...
+    4. 实现服务端渲染的客户端代码打包
+        与客户端渲染打包相比只是入口文件(确切的讲应该是入口文件的配置)不同, 需要传入hydratable为true(参考svelte官网服务端渲染的说明) 同时还需要修改@sveltejs/vite-plugin-svelte插件配置compilerOptions.hydratable为true 两者必须同时设置
+    5. 实现服务端渲染的服务端代码打包
+        相比于实现客户端渲染, 配置服务端渲染打包更加简单, 只需要将build.ssr指向服务端渲染入口文件即可, 同时还是需要引入@sveltejs/vite-plugin-svelte插件, 并依照客户端渲染一样配置preprocess来支持typescript
+    6. 实现服务端渲染生产环境服务器
+        服务端渲染打包会生成一个在服务端执行来生成html内容的文件, 直接引入并执行来生成即可
+        其他略...
+    7. 实现服务端渲染开发环境服务器
+        参考<https://cn.vitejs.dev/guide/ssr.html>进行配置 同理需要借助vite.createServer来实现, 配置是服务端渲染客户端打包配置, 但需要添加server.middlewareMode = 'ssr'
+        其余参考官网服务端渲染配置即可.
